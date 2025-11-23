@@ -1,0 +1,55 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.io import wavfile
+rate, audio = wavfile.read("audio.wav")
+audio = audio.astype(float)
+audio = audio.mean(axis=1)
+impulse = audio.copy()
+linear = np.convolve(audio, impulse)
+A = np.fft.fft(audio)
+B = np.fft.fft(impulse)
+circular = np.real(np.fft.ifft(A * B))
+plt.subplot(1,2,1)
+plt.plot(linear)
+plt.title("Linear Convolution")
+plt.subplot(1,2,2)
+plt.plot(circular)
+plt.title("Circular Convolution")
+plt.tight_layout()
+plt.show()
+
+
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.io import wavfile
+def load_audio(audio):
+    rate, data = wavfile.read("audio.wav")
+    if data.ndim > 1:
+        data = data.mean(axis=1)
+    return data.astype(float)
+clean = load_audio("clean_audio.wav")
+noisy = load_audio("noisy_audio.wav")
+periodic = load_audio("periodic_audio.wav")
+auto_clean = np.correlate(clean, clean, mode='full')
+auto_noisy = np.correlate(noisy, noisy, mode='full')
+auto_periodic = np.correlate(periodic, periodic, mode='full')
+cross_clean_noisy = np.correlate(clean, noisy, mode='full')
+cross_clean_periodic = np.correlate(clean, periodic, mode='full')
+plt.figure(figsize=(12,10))
+plt.subplot(3,2,1)
+plt.plot(auto_clean)
+plt.title("Autocorrelation: Clean Audio")
+plt.subplot(3,2,2)
+plt.plot(auto_noisy)
+plt.title("Autocorrelation: Noisy Audio")
+plt.subplot(3,2,3)
+plt.plot(auto_periodic)
+plt.title("Autocorrelation: Periodic Audio")
+plt.subplot(3,2,4)
+plt.plot(cross_clean_noisy)
+plt.title("Cross-correlation: Clean vs Noisy")
+plt.subplot(3,2,5)
+plt.plot(cross_clean_periodic)
+plt.title("Cross-correlation: Clean vs Periodic")
+plt.tight_layout()
+plt.show()
